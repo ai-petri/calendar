@@ -1,0 +1,14 @@
+.calendar{
+    display: grid;
+    grid-template-columns: repeat(4, 200px);
+    gap:20px;
+    margin: 20px auto;
+    width: 860px;
+    user-select: none;
+}
+.day:hover{
+    background-color: lightcyan;
+}
+.current{
+    border: 1px solid black;
+}
