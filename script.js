@@ -1,7 +1,22 @@
-let calendar = createCalendar();
+let calendar = createCalendar(showPopup);
 document.body.append(calendar);
 
-function createCalendar()
+
+function showPopup(date)
+{
+    let popup = document.createElement("div");
+    popup.className = "popup";
+
+    let closeButton = document.createElement("button");
+    closeButton.className = "close_button";
+    closeButton.onclick = e => popup.remove();
+    popup.append(closeButton);
+
+
+    document.body.append(popup)
+}
+
+function createCalendar(dateClicked)
 {
 
     let calendar = document.createElement("div");
@@ -55,6 +70,12 @@ function createCalendar()
             }
             let td = document.createElement("td");
             td.className = "day";
+
+            if(dateClicked && typeof(dateClicked) == "function")
+            {
+                let d = date;
+                td.onclick = e => dateClicked(d);
+            }
 
             if(currentDate.getMonth() == date.getMonth() && currentDate.getDate() == date.getDate())
             {
