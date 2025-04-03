@@ -44,3 +44,11 @@ body{
     text-align: center;
     font-weight: bold;
 }
+
+.eventsTable{
+    margin: 10px;
+}
+
+.eventsTable>tr>td{
+    padding: 5px;
+}
