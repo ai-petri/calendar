@@ -13,6 +13,9 @@ body{
 .day:hover{
     background-color: lightcyan;
 }
+.day.busy{
+    background-color: pink;
+}
 .current{
     border: 1px solid black;
 }

@@ -9,6 +9,7 @@ let request = indexedDB.open("calendar",1);
 request.onsuccess = e =>
 {
     db = e.target.result;
+    updateBusyDays();
 }
 request.onupgradeneeded = e =>
 {
@@ -55,6 +56,41 @@ function getEvents(dateString)
             request.onsuccess = e => resolve(e.target.result);
         }
     })
+}
+
+function getAllDates()
+{
+    return new Promise(resolve=>
+    {
+        if(!db)
+        {
+            resolve([])
+        }
+        else
+        {
+            let store = db.transaction("events","readonly").objectStore("events");
+            let request = store.getAllKeys();
+            request.onerror = e => resolve([]);
+            request.onsuccess = e => resolve(e.target.result);
+        }
+    })
+}
+
+async function updateBusyDays()
+{
+    let dateStrings =  await getAllDates();
+
+    for(let el of document.querySelectorAll(".day"))
+    {
+        if(dateStrings.includes(el.getAttribute("data-date")))
+        {
+            el.classList.add("busy");
+        }
+        else
+        {
+            el.classList.remove("busy")
+        }
+    }
 }
 
 
@@ -148,6 +184,7 @@ function createCalendar(dateClicked)
             }
             let td = document.createElement("td");
             td.className = "day";
+            td.setAttribute("data-date", date.toLocaleDateString("ru"));    
 
             if(dateClicked && typeof(dateClicked) == "function")
             {
