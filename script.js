@@ -7,10 +7,14 @@ function showPopup(date)
     let popup = document.createElement("div");
     popup.className = "popup";
 
+    let title = document.createElement("div");
+    title.className = "title";
+
+    title.innerText = date.toLocaleDateString("ru");
     let closeButton = document.createElement("button");
     closeButton.className = "close_button";
     closeButton.onclick = e => popup.remove();
-    popup.append(closeButton);
+    popup.append(title,closeButton);
 
 
     document.body.append(popup)
