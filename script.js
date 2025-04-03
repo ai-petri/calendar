@@ -14,7 +14,8 @@ request.onsuccess = e =>
 request.onupgradeneeded = e =>
 {
     let db = e.target.result;
-    let store = db.createObjectStore("events",{keyPath:"date"});
+    let store = db.createObjectStore("events",{keyPath:"timeStamp"});
+    store.createIndex("date","date", {unique:false});
     store.createIndex("hours","hours",{unique:false});
     store.createIndex("minutes","minutes",{unique:false});
     store.createIndex("description","description", {unique:false});
@@ -51,7 +52,8 @@ function getEvents(dateString)
         else
         {
             let store = db.transaction("events","readonly").objectStore("events");
-            let request = store.getAll(dateString);
+            let index = store.index("date")
+            let request = index.getAll(dateString);
             request.onerror = e => resolve([]);
             request.onsuccess = e => resolve(e.target.result);
         }
@@ -69,9 +71,25 @@ function getAllDates()
         else
         {
             let store = db.transaction("events","readonly").objectStore("events");
-            let request = store.getAllKeys();
-            request.onerror = e => resolve([]);
-            request.onsuccess = e => resolve(e.target.result);
+            let index = store.index("date");
+            let request = index.openCursor();
+            let dates = [];
+            request.onerror = e => resolve(dates);
+            request.onsuccess = e =>
+            {
+                let cursor = e.target.result;
+                
+                if(cursor)
+                {
+                    dates.push(cursor.key);
+                    cursor.continue();
+                }
+                else
+                {
+                    resolve(dates);
+                }
+            }
+            
         }
     })
 }
@@ -93,7 +111,61 @@ async function updateBusyDays()
     }
 }
 
+function showCreateEventPopup()
+{
+    let popup = document.createElement("div");
+    popup.className = "popup";
 
+    let title = document.createElement("div");
+    title.className = "title";
+    title.innerText = "Добавить событие";
+
+    let form = document.createElement("form");
+    form.className = "event_form";
+
+    let dateLabel = document.createElement("label");
+    dateLabel.innerText = "дата:";
+    let dateInput = document.createElement("input");
+    dateInput.type = "date";
+    let timeLabel = document.createElement("label");
+    timeLabel.innerText = "время:"
+    let timeInput = document.createElement("input");
+    timeInput.type = "time";
+    let descriptionInput = document.createElement("textarea");
+    form.append(dateLabel,dateInput,timeLabel,timeInput,descriptionInput);
+
+    let closeButton = document.createElement("button");
+    closeButton.className = "close_button";
+    closeButton.onclick = e => popup.remove();
+
+    let okButton = document.createElement("button");
+    okButton.innerText = "OK";
+    okButton.className = "ok_button";
+    okButton.onclick = e=>
+    {
+        let timeStamp = new Date().getTime();
+        let date = new Date(dateInput.value).toLocaleDateString("ru")
+        let [hours,minutes] = timeInput.value? timeInput.value.split(":"): [null,null];
+        let description = descriptionInput.value;
+        if(date !== "Invalid Date")
+        {
+            addEvent({timeStamp, date,hours,minutes,description}).then(_=>updateBusyDays());
+        }
+        popup.remove();
+    }
+
+    let cancelButton = document.createElement("button");
+    cancelButton.innerText = "Отмена";
+    cancelButton.className = "cancel_button";
+    cancelButton.onclick = e => popup.remove();
+
+
+
+
+
+    popup.append(title,closeButton,form, okButton, cancelButton);
+    document.body.append(popup);
+}
 function showPopup(date)
 {
     let dateString = date.toLocaleDateString("ru");
@@ -110,7 +182,7 @@ function showPopup(date)
     closeButton.onclick = e => popup.remove();
 
     let table = document.createElement("table");
-    table.className = "eventsTable"
+    table.className = "events_table"
 
     popup.append(title,closeButton,table);
     document.body.append(popup);
