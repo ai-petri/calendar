@@ -21,6 +21,28 @@ request.onupgradeneeded = e =>
 }
 
 
+function deleteAll()
+{
+    return new Promise(resolve=>
+    {
+        if(!db)
+        {
+            resolve("no database");
+        }
+        else
+        {
+            let store = db.transaction("events","readwrite").objectStore("events");
+            let request = store.clear();
+            request.onerror = e => resolve("error");
+            request.onsuccess = e =>
+            {
+                updateBusyDays();
+                resolve("deleted successfully");
+            }
+        }
+    })
+}
+
 function addEvent(eventObject)
 {
     return new Promise(resolve =>
