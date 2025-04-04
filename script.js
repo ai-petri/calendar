@@ -16,8 +16,7 @@ request.onupgradeneeded = e =>
     let db = e.target.result;
     let store = db.createObjectStore("events",{keyPath:"timeStamp"});
     store.createIndex("date","date", {unique:false});
-    store.createIndex("hours","hours",{unique:false});
-    store.createIndex("minutes","minutes",{unique:false});
+    store.createIndex("time","time",{unique:false});
     store.createIndex("description","description", {unique:false});
 }
 
@@ -55,7 +54,17 @@ function getEvents(dateString)
             let index = store.index("date")
             let request = index.getAll(dateString);
             request.onerror = e => resolve([]);
-            request.onsuccess = e => resolve(e.target.result);
+            request.onsuccess = e => 
+            {
+                let arr = [...e.target.result];
+                arr.sort((a,b)=>
+                {
+                    if(!a.time) return 1;
+                    else if(!b.time) return -1;
+                    else return a.time.localeCompare(b.time); 
+                });
+                resolve(arr);
+            }
         }
     })
 }
@@ -144,12 +153,12 @@ function showCreateEventPopup()
     okButton.onclick = e=>
     {
         let timeStamp = new Date().getTime();
-        let date = new Date(dateInput.value).toLocaleDateString("ru")
-        let [hours,minutes] = timeInput.value? timeInput.value.split(":"): [null,null];
+        let date = new Date(dateInput.value).toLocaleDateString("ru");
+        let time = timeInput.value == "" ? "--:--" : timeInput.value;
         let description = descriptionInput.value;
         if(date !== "Invalid Date")
         {
-            addEvent({timeStamp, date,hours,minutes,description}).then(_=>updateBusyDays());
+            addEvent({timeStamp, date, time, description}).then(_=>updateBusyDays());
         }
         popup.remove();
     }
@@ -193,7 +202,7 @@ function showPopup(date)
         {
             let tr = document.createElement("tr");
             let td1 = document.createElement("td");
-            td1.innerText = `${event.hours?(""+event.hours).padStart(2,"0"):"--"}:${event.minutes?(""+event.minutes).padStart(2,"0"):"--"}`;
+            td1.innerText = event.time || "--:--";
             let td2 = document.createElement("td");
             td2.innerText = event.description? event.description : "";
             tr.append(td1,td2);
