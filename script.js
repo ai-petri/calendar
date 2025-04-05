@@ -79,7 +79,7 @@ function getEvents(dateString)
             request.onsuccess = e => 
             {
                 let arr = [...e.target.result];
-                arr.sort((a,b) => a-b);
+                arr.sort((a,b) => a.time - b.time);
                 resolve(arr);
             }
         }
