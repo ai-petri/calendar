@@ -57,6 +57,10 @@ body{
     padding: 5px;
 }
 
+.events_table>tr>td:first-child{
+    text-align: center;
+}
+
 .event_form{
     margin: 10px;
 }
