@@ -79,12 +79,7 @@ function getEvents(dateString)
             request.onsuccess = e => 
             {
                 let arr = [...e.target.result];
-                arr.sort((a,b)=>
-                {
-                    if(!a.time) return 1;
-                    else if(!b.time) return -1;
-                    else return a.time.localeCompare(b.time); 
-                });
+                arr.sort((a,b) => a-b);
                 resolve(arr);
             }
         }
@@ -176,7 +171,7 @@ function showCreateEventPopup()
     {
         let timeStamp = new Date().getTime();
         let date = new Date(dateInput.value).toLocaleDateString("ru");
-        let time = timeInput.value == "" ? "--:--" : timeInput.value;
+        let time = timeInput.value == "" ? null :  new Date("1970-01-01T"+timeInput.value).getTime();
         let description = descriptionInput.value;
         if(date !== "Invalid Date")
         {
@@ -224,7 +219,7 @@ function showPopup(date)
         {
             let tr = document.createElement("tr");
             let td1 = document.createElement("td");
-            td1.innerText = event.time || "--:--";
+            td1.innerText = event.time ? new Date(event.time).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"}): "--:--";
             let td2 = document.createElement("td");
             td2.innerText = event.description? event.description : "";
             tr.append(td1,td2);
