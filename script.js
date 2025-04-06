@@ -219,7 +219,7 @@ function showPopup(date)
         {
             let tr = document.createElement("tr");
             let td1 = document.createElement("td");
-            td1.innerText = event.time ? new Date(event.time).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"}): "--:--";
+            td1.innerText = event.time !== null ? new Date(event.time).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"}): "--:--";
             let td2 = document.createElement("td");
             td2.innerText = event.description? event.description : "";
             tr.append(td1,td2);
